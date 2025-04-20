@@ -10,7 +10,7 @@ import (
 func main() {
 	command.Init()
 	commands := command.GetCommands()
-	config := &command.Config{}
+	config := command.NewConfig()
 
 	scanner := bufio.NewScanner(os.Stdin)
 
