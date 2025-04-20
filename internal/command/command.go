@@ -76,7 +76,7 @@ var commands map[string]cliCommand = map[string]cliCommand{
 	"explore": {
 		Name:        "explore",
 		Description: "Display location pokemons",
-		Callback:    commandMapB,
+		Callback:    commandExplore,
 	},
 }
 
@@ -162,6 +162,49 @@ func commandMapB(c *Config, s string) error {
 	return nil
 }
 
+func commandExplore(c *Config, area string) error {
+	if area == "" {
+		return errors.New("required area")
+	}
+
+	pokemons, err := getLocationPokemons(LOCATION_AREA_URL + "/" + area + "/")
+
+	if err != nil {
+		return err
+	}
+
+	if len(pokemons) == 0 {
+		return errors.New("no pokemons found")
+	}
+
+	fmt.Println("Found Pokemon:")
+	for _, pokemon := range pokemons {
+		fmt.Printf("- %s\n", pokemon)
+	}
+
+	return nil
+}
+
+func getLocationPokemons(url string) ([]string, error) {
+	body, err := getBody(url)
+	if err != nil {
+		return nil, err
+	}
+
+	response := LocationAreaPokemonResponse{}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshall error %w", err)
+	}
+
+	pokemons := []string{}
+	for _, item := range response.PokemonEncounters {
+		pokemons = append(pokemons, item.Pokemon.Name)
+	}
+
+	return pokemons, nil
+}
+
 func getLocationAreas(url string) (*string, *string, []string, error) {
 	var prev *string = nil
 	var next *string = nil
@@ -201,7 +244,7 @@ func getBody(url string) ([]byte, error) {
 	res.Body.Close()
 
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("url %s error code %d; %body", url, res.StatusCode, body)
+		return nil, fmt.Errorf("url %s error code %d; %s", url, res.StatusCode, body)
 	}
 
 	if err != nil {

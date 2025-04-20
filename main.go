@@ -16,13 +16,20 @@ func main() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		command, ok := commands[line]
+		parts := cleanInput(line)
+		cmd, arg := parts[0], ""
+
+		if len(parts) >= 2 {
+			arg = parts[1]
+		}
+
+		command, ok := commands[cmd]
 		if !ok {
 			println("uknown command")
 			continue
 		}
 
-		err := command.Callback(config, "")
+		err := command.Callback(config, arg)
 		if err != nil {
 			fmt.Printf("Command error %v\n", err)
 		}
