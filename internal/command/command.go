@@ -109,6 +109,11 @@ var commands map[string]cliCommand = map[string]cliCommand{
 		Description: "Inspect pokemon",
 		Callback:    commandInspect,
 	},
+	"pokedex": {
+		Name:        "pokedex",
+		Description: "Show catched pokemons",
+		Callback:    commandPokedex,
+	},
 }
 
 var usage []string = []string{}
@@ -302,6 +307,17 @@ Stats:
 %s
 Types:
 %s`, pokemonInst.Name, pokemonInst.Height, pokemonInst.Weight, statsStr, typesStr)
+	return nil
+}
+
+func commandPokedex(c *Config, _ string) error {
+	pokemonsStr := ""
+
+	for _, p := range c.Pokedex {
+		pokemonsStr += fmt.Sprintf("- %s\n", p.Name)
+	}
+
+	fmt.Printf("Your Pokedex:\n%s", pokemonsStr)
 	return nil
 }
 
